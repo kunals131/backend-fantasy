@@ -94,13 +94,13 @@ exports.login = catchAsync(async (req, res, next) => {
         401
       )
     );
-  if (user.verified === false)
-    return next(
-      new AppError(
-        `Please Activate your email by the Link sent to your email ${user.email}.`,
-        401
-      )
-    );
+  // if (user.verified === false)
+  //   return next(
+  //     new AppError(
+  //       `Please Activate your email by the Link sent to your email ${user.email}.`,
+  //       401
+  //     )
+  //   );
 
   // if eveything is ok
   createsendToken(user, 200, res);
