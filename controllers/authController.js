@@ -100,7 +100,7 @@ exports.login = catchAsync(async (req, res, next) => {
   //       `Please Activate your email by the Link sent to your email ${user.email}.`,
   //       401
   //     )
-  //   );
+  //   )
 
   // if eveything is ok
   createsendToken(user, 200, res);
