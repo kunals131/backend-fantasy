@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const { default: axios } = require('axios');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -19,6 +20,18 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     validate: [validator.isEmail, 'Please provide a valid email'],
   },
+  balance : {
+    type : Number,
+    default : 0,
+  },
+  connectedWallets : [{
+    walletType : {
+      type : String,
+    },
+    publicKey : {
+      type : String
+    }
+  }],
   dob: {
     type: String,
     trim: true,
@@ -88,6 +101,7 @@ userSchema.methods.correctPassword = async function (candidate_Password, user_Pa
   console.log(candidate_Password);
   return await bcrypt.compare(candidate_Password, user_Password);
 };
+
 
 userSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString('hex');
