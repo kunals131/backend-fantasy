@@ -1,7 +1,7 @@
 const {Schema, model} = require('mongoose');
 
 const transactionSchema = new Schema({
-    created_by : {
+    createdBy : {
         type : Schema.Types.ObjectId,
         ref : 'User'
     },
@@ -33,10 +33,10 @@ const transactionSchema = new Schema({
         default : 'pending'
     },
     for :{
-        type :Object,
-        default : {}
+        type :String,
+        ref : 'Registration'
     }
-})
+}, {timestamps : true})
 
-const Transaction = mongoose.model('Transaction', transactionSchema);
+const Transaction = model('Transaction', transactionSchema);
 module.exports = Transaction;

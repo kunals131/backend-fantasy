@@ -14,6 +14,7 @@ const hpp = require('hpp');
 const userRouter = require('./routers/userRouter');
 const authRoutes = require('./routers/authRoutes');
 const tournamentRoutes = require('./routers/tournamentRouter');
+const registrationRoutes = require('./routers/registrationRouter');
 
 const globalErrorHandler = require('./middlewares/globalErrorHandler');
 app.use("/uploads", express.static(__dirname + "/uploads"));
@@ -80,6 +81,7 @@ app.use((req, res, next) => {
 app.use('/api/users', userRouter);
 app.use('/api/auth', authRoutes);
 app.use('/api/tournament', tournamentRoutes);
+app.use('/api/register', registrationRoutes);
 
 // handling all (get,post,update,delete.....) unhandled routes
 app.all('*', (req, res, next) => {
@@ -87,6 +89,8 @@ app.all('*', (req, res, next) => {
     new AppError(`Can't find ${req.originalUrl} on the server`, 404)
   );
 });
+
+
 
 // error handling middleware
 app.use(globalErrorHandler);
