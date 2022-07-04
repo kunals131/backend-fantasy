@@ -33,7 +33,7 @@ const transactionSchema = new Schema({
         default : 'pending'
     },
     for :{
-        type :String,
+        type :Schema.Types.ObjectId,
         ref : 'Registration'
     }
 }, {timestamps : true})

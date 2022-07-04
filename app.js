@@ -15,6 +15,7 @@ const userRouter = require('./routers/userRouter');
 const authRoutes = require('./routers/authRoutes');
 const tournamentRoutes = require('./routers/tournamentRouter');
 const registrationRoutes = require('./routers/registrationRouter');
+const transactionRoutes = require('./routers/transactionsRouter');
 
 const globalErrorHandler = require('./middlewares/globalErrorHandler');
 app.use("/uploads", express.static(__dirname + "/uploads"));
@@ -82,6 +83,7 @@ app.use('/api/users', userRouter);
 app.use('/api/auth', authRoutes);
 app.use('/api/tournament', tournamentRoutes);
 app.use('/api/register', registrationRoutes);
+app.use('/api/transaction', transactionRoutes);
 
 // handling all (get,post,update,delete.....) unhandled routes
 app.all('*', (req, res, next) => {

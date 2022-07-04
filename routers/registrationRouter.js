@@ -7,5 +7,5 @@ const express = require('express')
 const router = express.Router();
 
 router.route('/:id').post(protect,transactionController.registerTournamentHandler);
-router.get('/').get(protect,registrationController.getUserRegistrations);
+router.route('/').get(protect,registrationController.getUserRegistrations);
 module.exports = router;
