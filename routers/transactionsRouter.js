@@ -8,6 +8,10 @@ const router = express.Router();
 router
   .route('/')
   .get(protect,transactionsController.getUsersTransactionsHandler);
-  
+
+
+router.route('/add-wallet')
+.get(transactionsController.getAccountInformationHandler)
+.post(transactionsController.addSolToWalletHandler)
 
 module.exports = router;

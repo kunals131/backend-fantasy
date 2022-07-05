@@ -13,6 +13,11 @@
    },
    "dependencies": {
       "@sendgrid/mail": "^7.4.4",
+      "@solana/wallet-adapter-base": "^0.9.7",
+      "@solana/wallet-adapter-react": "^0.15.6",
+      "@solana/wallet-adapter-react-ui": "^0.9.8",
+      "@solana/wallet-adapter-wallets": "^0.16.6",
+      "@solana/web3.js": "^1.47.3",
       "aws-sdk": "^2.1057.0",
       "axios": "^0.25.0",
       "bcryptjs": "^2.4.3",

@@ -3,8 +3,12 @@ const AppError = require('./../utils/appError');
 const Tournament = require('./../models/Tournament');
 const convertUsdToSol = require('../utils/convertUsdToSol');
 const Registration = require('../models/Registration');
-const Transaction =  require('./../models/Transaction');
+const TransactionModel =  require('./../models/Transaction');
 const User = require('../models/User');
+const {shopAddress} = require('../utils/walletAddresses');
+const { clusterApiUrl, Connection,Transaction,PublicKey, SystemProgram, LAMPORTS_PER_SOL } = require("@solana/web3.js")
+const { WalletAdapterNetwork } =  require("@solana/wallet-adapter-base");
+
 
 
 
@@ -37,7 +41,7 @@ exports.registerTournamentHandler = catchAsync(async (req, res, next) => {
             new AppError(`Insufficient Funds, Please add funds to your Daily Fantasy Wallet`, 400)
         )
     }
-    const newTransaction = new Transaction({
+    const newTransaction = new TransactionModel({
         createdBy : user._id,
         mode : 'WALLET',
         amountInSol : tournamentCostInSol,
@@ -73,6 +77,108 @@ exports.registerTournamentHandler = catchAsync(async (req, res, next) => {
 
 exports.getUsersTransactionsHandler = catchAsync(async (req, res, next) => {
     const user = req.user;
-    const allTransactions = await Transaction.find({createdBy : user._id}).populate('for');
+    const allTransactions = await TransactionModel.find({createdBy : user._id}).populate('for');
     res.status(200).json({transactions : allTransactions, status : 'success'});
+})
+
+exports.getAccountInformationHandler = catchAsync(async(req,res,next)=>{
+    res.status(200).json({
+        label: "Daily Fantasy",
+        icon: "https://freesvg.org/img/Game-Controller-Outline-White.png",
+      })
+
+})
+
+
+
+exports.addSolToWalletHandler = catchAsync(async(req,res,next)=>{
+
+        // We pass the selected items in the query, calculate the expected cost
+        const {amount,reference} = req.body;
+        if (!amount || amount===0) {
+            return next(new AppError('Amount is invalid', 400));
+        }
+    
+        // We pass the reference to use in the query
+        if (!reference) {
+          return next(new AppError('Reference is Invalid', 400));
+        }
+    
+        // We pass the buyer's public key in JSON body
+        const { account } = req.body
+        if (!account) {
+          return next(new AppError('Account provided is invalid', 400));
+        }
+        const buyerPublicKey = new PublicKey(account)
+        const shopPublicKey = shopAddress
+    
+        const network = WalletAdapterNetwork.Devnet
+        const endpoint = clusterApiUrl(network)
+        const connection = new Connection(endpoint)
+    
+        // Get a recent blockhash to include in the transaction
+        const { blockhash } = await (connection.getLatestBlockhash('finalized'))
+    
+        const transaction = new Transaction({
+          recentBlockhash: blockhash,
+          // The buyer pays the transaction fee
+          feePayer: buyerPublicKey,
+        })
+    
+        // Create the instruction to send SOL from the buyer to the shop
+        const transferInstruction = SystemProgram.transfer({
+          fromPubkey: buyerPublicKey,
+          lamports: amount.multipliedBy(LAMPORTS_PER_SOL).toNumber(),
+          toPubkey: shopPublicKey,
+        })
+    
+        // Add the reference to the instruction as a key
+        // This will mean this transaction is returned when we query for the reference
+        transferInstruction.keys.push({
+          pubkey: new PublicKey(reference),
+          isSigner: false,
+          isWritable: false,
+        })
+    
+        // Add the instruction to the transaction
+        transaction.add(transferInstruction)
+    
+        // Serialize the transaction and convert to base64 to return it
+        const serializedTransaction = transaction.serialize({
+          // We will need the buyer to sign this transaction after it's returned to them
+          requireAllSignatures: false
+        })
+        const base64 = serializedTransaction.toString('base64')
+    
+        // Insert into database: reference, amount
+    
+        // Return the serialized transaction
+
+        res.status(200).json({
+          transaction: base64,
+          message: "Thanks for your order!",
+        });
+
+});
+
+
+exports.createCustomTransactionToWallet = catchAsync(async(req,res,next)=>{
+    const user = req.user;
+    const {transactionDetails} = req.body;
+    if (!transactionDetails) {
+        return next(new AppError('Transaction details are missing', 400));
+    }
+    const {amountInSol} = transactionDetails;
+
+    const updatedUser = await User.findByIdAndUpdate(user._id, {balance : user.balance+=parseFloat(amountInSol)});
+
+    const newTransaction = new TransactionModel(transactionDetails);
+
+    const result = await newTransaction.save();
+
+    res.status(200).json({
+        transaction : result,
+        updatedBalance : updatedUser.balance
+    });
+
 })
