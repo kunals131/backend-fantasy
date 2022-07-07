@@ -24,7 +24,8 @@ const transactionSchema = new Schema({
     },
     referenceId : {
         type  :String,
-        required : true
+        required : true,
+        unique: true
     },
     status : {
         type : String,

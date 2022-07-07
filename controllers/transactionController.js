@@ -8,7 +8,7 @@ const User = require('../models/User');
 const {shopAddress} = require('../utils/walletAddresses');
 const { clusterApiUrl, Connection,Transaction,PublicKey, SystemProgram, LAMPORTS_PER_SOL } = require("@solana/web3.js")
 const { WalletAdapterNetwork } =  require("@solana/wallet-adapter-base");
-
+const BigNumber = require('bignumber.js');
 
 
 
@@ -77,7 +77,8 @@ exports.registerTournamentHandler = catchAsync(async (req, res, next) => {
 
 exports.getUsersTransactionsHandler = catchAsync(async (req, res, next) => {
     const user = req.user;
-    const allTransactions = await TransactionModel.find({createdBy : user._id}).populate('for');
+    const allTransactions = await TransactionModel.find({createdBy : user._id});
+    console.log(allTransactions);
     res.status(200).json({transactions : allTransactions, status : 'success'});
 })
 
@@ -94,11 +95,13 @@ exports.getAccountInformationHandler = catchAsync(async(req,res,next)=>{
 exports.addSolToWalletHandler = catchAsync(async(req,res,next)=>{
 
         // We pass the selected items in the query, calculate the expected cost
-        const {amount,reference} = req.body;
-        if (!amount || amount===0) {
+        const {reference} = req.query;
+        const fetchedAmount = req?.query?.amount;
+        if (!fetchedAmount || fetchedAmount===0) {
             return next(new AppError('Amount is invalid', 400));
         }
-    
+        const amount = new BigNumber(parseFloat(fetchedAmount));
+        
         // We pass the reference to use in the query
         if (!reference) {
           return next(new AppError('Reference is Invalid', 400));
@@ -112,7 +115,7 @@ exports.addSolToWalletHandler = catchAsync(async(req,res,next)=>{
         const buyerPublicKey = new PublicKey(account)
         const shopPublicKey = shopAddress
     
-        const network = WalletAdapterNetwork.Devnet
+        const network = WalletAdapterNetwork.Testnet
         const endpoint = clusterApiUrl(network)
         const connection = new Connection(endpoint)
     
@@ -168,11 +171,22 @@ exports.createCustomTransactionToWallet = catchAsync(async(req,res,next)=>{
     if (!transactionDetails) {
         return next(new AppError('Transaction details are missing', 400));
     }
+    const ifTransaction = await TransactionModel.findOne({referenceId : transactionDetails.referenceId});
+    if (ifTransaction) {
+        return res.status(200).json({
+            transaction : ifTransaction,
+            updatedBalance : user.balance
+        });
+    }
     const {amountInSol} = transactionDetails;
 
-    const updatedUser = await User.findByIdAndUpdate(user._id, {balance : user.balance+=parseFloat(amountInSol)});
+    let userBigNumber = new BigNumber(user.balance);
+    let amountBigNumber = new BigNumber(amountInSol);
+    amountBigNumber = parseFloat(amountBigNumber.plus(userBigNumber).toString());
 
-    const newTransaction = new TransactionModel(transactionDetails);
+    const updatedUser = await User.findByIdAndUpdate(user._id, {balance : amountBigNumber});
+
+    const newTransaction = new TransactionModel({createdBy : user._id , ...transactionDetails});
 
     const result = await newTransaction.save();
 

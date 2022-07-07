@@ -14,4 +14,7 @@ router.route('/add-wallet')
 .get(transactionsController.getAccountInformationHandler)
 .post(transactionsController.addSolToWalletHandler)
 
+router.route('/create')
+.post(protect, transactionsController.createCustomTransactionToWallet);
+
 module.exports = router;
