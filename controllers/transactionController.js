@@ -49,7 +49,8 @@ exports.registerTournamentHandler = catchAsync(async (req, res, next) => {
         referenceId : referenceId,
         status  : 'completed',
         for : tournamentFound._id,
-        amountInUsd : tournamentFound.entry_fee
+        amountInUsd : tournamentFound.entry_fee,
+        updatedBalance : user.balance-tournamentCostInSol
     });
 
     const generatedTransaction =await newTransaction.save();
@@ -171,22 +172,24 @@ exports.createCustomTransactionToWallet = catchAsync(async(req,res,next)=>{
     if (!transactionDetails) {
         return next(new AppError('Transaction details are missing', 400));
     }
+    let userBigNumber = new BigNumber(user.balance);
+    let amountBigNumber = new BigNumber(amountInSol);
+    amountBigNumber = parseFloat(amountBigNumber.plus(userBigNumber).toString());
+    
     const ifTransaction = await TransactionModel.findOne({referenceId : transactionDetails.referenceId});
+    
     if (ifTransaction) {
         return res.status(200).json({
             transaction : ifTransaction,
-            updatedBalance : user.balance
+            updatedBalance : ifTransaction.updatedBalance
         });
     }
     const {amountInSol} = transactionDetails;
 
-    let userBigNumber = new BigNumber(user.balance);
-    let amountBigNumber = new BigNumber(amountInSol);
-    amountBigNumber = parseFloat(amountBigNumber.plus(userBigNumber).toString());
 
     const updatedUser = await User.findByIdAndUpdate(user._id, {balance : amountBigNumber});
 
-    const newTransaction = new TransactionModel({createdBy : user._id , ...transactionDetails});
+    const newTransaction = new TransactionModel({createdBy : user._id , ...transactionDetails, updatedBalance : amountBigNumber});
 
     const result = await newTransaction.save();
 

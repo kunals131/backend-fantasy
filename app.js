@@ -85,6 +85,7 @@ app.use('/api/tournament', tournamentRoutes);
 app.use('/api/register', registrationRoutes);
 app.use('/api/transaction', transactionRoutes);
 
+
 // handling all (get,post,update,delete.....) unhandled routes
 app.all('*', (req, res, next) => {
   next(

@@ -36,6 +36,11 @@ const transactionSchema = new Schema({
     for :{
         type :Schema.Types.ObjectId,
         ref : 'Registration'
+    },
+    updatedBalance : {
+        type : Number,
+        required : false,
+        default : 0
     }
 }, {timestamps : true})
 

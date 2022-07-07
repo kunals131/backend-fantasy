@@ -46,7 +46,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   const activationURL = `${process.env.BASE_URL}auth/confirmMail/${activationToken}`;
   // let activationURL = `${req.headers.origin}/confirmMail/${activationToken}`;
 
-  console.log(`req.get('host')`, req.get("host"));
+  console.log(`req.get('host')`, req.get("hostname"));
   console.log(`req.host`, req.host);
   console.log(`req.protocol`, req.protocol);
 

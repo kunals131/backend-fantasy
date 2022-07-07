@@ -41,8 +41,17 @@ const registrationSchema = new Schema({
     finalRank : {
         type : Number,
         default : 0
-    }
+    },
+    currentRank : {
+        type : Number,
+        default : 0
+    },
+
+}, {
+    timestamps : true
 })
+
+
 
 const Registration = model('Registration', registrationSchema);
 module.exports = Registration;
