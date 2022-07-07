@@ -8,6 +8,7 @@ const registrationSchema = new Schema({
     tournamentId : {
         type : Schema.Types.ObjectId,
         required : true,
+        ref : 'Tournament'
     },
     team : [{
         type: Object,
@@ -46,10 +47,16 @@ const registrationSchema = new Schema({
         type : Number,
         default : 0
     },
+    score : {
+        type : Number,
+        default : 0
+    }
 
 }, {
     timestamps : true
 })
+
+
 
 
 
