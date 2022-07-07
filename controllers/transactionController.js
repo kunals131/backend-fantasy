@@ -28,6 +28,13 @@ exports.registerTournamentHandler = catchAsync(async (req, res, next) => {
             new AppError(`Tournament with id ${id} not found`, 404)
         );
     }
+    if (tournamentFound.status==='in_progress') {
+        return next(new AppError(`Tournament has already started!`, 400)); 
+    }
+    if (tournamentFound.status==='closed') {
+        return next(new AppError(`Tournament has ended!`, 400));
+    }
+
     const IfRegistrationExists = await Registration.findOne({createdBy : user._id,tournamentId : id }).exec();
 
     if (IfRegistrationExists) {
@@ -172,6 +179,7 @@ exports.createCustomTransactionToWallet = catchAsync(async(req,res,next)=>{
     if (!transactionDetails) {
         return next(new AppError('Transaction details are missing', 400));
     }
+    const {amountInSol} = transactionDetails;
     let userBigNumber = new BigNumber(user.balance);
     let amountBigNumber = new BigNumber(amountInSol);
     amountBigNumber = parseFloat(amountBigNumber.plus(userBigNumber).toString());
@@ -184,7 +192,7 @@ exports.createCustomTransactionToWallet = catchAsync(async(req,res,next)=>{
             updatedBalance : ifTransaction.updatedBalance
         });
     }
-    const {amountInSol} = transactionDetails;
+ 
 
 
     const updatedUser = await User.findByIdAndUpdate(user._id, {balance : amountBigNumber});
