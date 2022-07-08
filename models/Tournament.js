@@ -54,7 +54,6 @@ const tournamentSchema = new mongoose.Schema({
 tournamentSchema.post("find", async function (tournaments) {
   if (tournaments) {
     for (let tournament of tournaments) {
-  console.log('called')
 
       const latestState = checkTournamentState(tournament.start_time, tournament.end_time);
       tournament.status = latestState;
@@ -69,10 +68,9 @@ tournamentSchema.post("findOne", async function (tournament) {
 
 const latestState = checkTournamentState(tournament.start_time, tournament.end_time);
 tournament.status = latestState;
-console.log('called')
-console.log(`${tournament.title} updated to ${latestState}`.bgGreen.white.bold);
+
 if (latestState === "closed") tournament.active = false;
-// await tournament.save();
+
 });
 
 const Tournament = mongoose.model("Tournament", tournamentSchema);

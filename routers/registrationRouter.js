@@ -9,3 +9,6 @@ const router = express.Router();
 router.route('/:id').post(protect,transactionController.registerTournamentHandler).get(protect,registrationController.getOneRegistration);
 router.route('/').get(protect,registrationController.getUserRegistrations);
 module.exports = router;
+
+router.route('/score/:id').get(protect, registrationController.getPlayerRank);
+router.route('/score/:id/end').get(protect, registrationController.contestEndStats);

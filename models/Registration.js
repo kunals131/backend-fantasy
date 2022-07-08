@@ -36,8 +36,8 @@ const registrationSchema = new Schema({
         default : 0
     },
     isPaid : {
-        type : Number,
-        default : 0
+        type : Boolean,
+        default : false,
     },
     finalRank : {
         type : Number,
@@ -55,6 +55,7 @@ const registrationSchema = new Schema({
 }, {
     timestamps : true
 })
+
 
 
 
