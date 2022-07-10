@@ -39,7 +39,8 @@ exports.createTournament = catchAsync(async (req, res, next) => {
     streamers: req.body.streamers,
     prize_amount: req.body.prize_amount,
     sections: req.body.sections,
-    created_by: req.user.id
+    created_by: req.user.id,
+    isDynamic : req.body.isDynamic
   });
 
   if (!newTournament)

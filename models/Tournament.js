@@ -32,6 +32,10 @@ const tournamentSchema = new mongoose.Schema({
     type: Array,
     default: [],
   },
+  isDynamic : {
+    type : Boolean,
+    default : false
+  },
   status: {
     type: String,
     enum: ["open", "in_progress", "closed"],
