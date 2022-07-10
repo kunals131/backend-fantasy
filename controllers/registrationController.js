@@ -5,6 +5,7 @@ const AppError = require('../utils/appError');
 const axios = require('axios');
 const { setRandomFallback } = require('bcryptjs');
 const WithdrawRequest  = require('../models/WithdrawRequest');
+const calculatePrizeAmount = require('../utils/calculatePrize');
 
 exports.getUserRegistrations = catchAsync(async (req, res, next) => {
     const user = req.user;
@@ -127,8 +128,9 @@ exports.contestEndStats = catchAsync(async(req,res,next)=>{
 
     //prize calculation : 
     //constact prizze for now
-    const prizeWon = 0.9;
-    foundRegistration.prizeWon = rank<=2?prizeWon:0;
+    let prizeWon = await calculatePrizeAmount(foundRegistration.tournamentId.prize_amount,foundRegistration.tournamentId.sections,rank+1,sortedRegistrations.length);
+    console.log(prizeWon);
+    foundRegistration.prizeWon = prizeWon;
     const updatedFoundreg = await foundRegistration.save();
       
     return res.json({
@@ -138,7 +140,7 @@ exports.contestEndStats = catchAsync(async(req,res,next)=>{
         damage : sortedRegistrations[rank].damage,
         wins : sortedRegistrations[rank].wins,
         score : sortedRegistrations[rank].score,
-        prize : rank<=2?prizeWon:0
+        prize : prizeWon
     });
 })
 

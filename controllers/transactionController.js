@@ -40,6 +40,7 @@ exports.registerTournamentHandler = catchAsync(async (req, res, next) => {
     if (IfRegistrationExists) {
         return next(new AppError(`You are already registered, cannot register multiple times`));
     }
+
     const userBalance = user.balance;
     const tournamentCostInSol = parseFloat(await convertUsdToSol(tournamentFound.entry_fee));
 
@@ -62,6 +63,9 @@ exports.registerTournamentHandler = catchAsync(async (req, res, next) => {
 
     const generatedTransaction =await newTransaction.save();
 
+
+
+
     const newRegistration = new Registration({
         createdBy : user._id,
         team : team,
@@ -70,6 +74,12 @@ exports.registerTournamentHandler = catchAsync(async (req, res, next) => {
     });
 
     const generatedRegistration = await newRegistration.save();
+    if (tournamentFound.isDynamic) {
+
+    tournamentFound.prize_amount +=tournamentFound.entry_fee;
+    await tournamentFound.save();
+    
+    }
 
     const userDocument = await User.findByIdAndUpdate(user._id, {balance : user.balance-tournamentCostInSol}, {new : true});
     
