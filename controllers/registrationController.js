@@ -4,6 +4,7 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const axios = require('axios');
 const { setRandomFallback } = require('bcryptjs');
+const WithdrawRequest  = require('../models/WithdrawRequest');
 
 exports.getUserRegistrations = catchAsync(async (req, res, next) => {
     const user = req.user;
@@ -139,4 +140,39 @@ exports.contestEndStats = catchAsync(async(req,res,next)=>{
         score : sortedRegistrations[rank].score,
         prize : rank<=2?prizeWon:0
     });
+})
+
+exports.createWithdrawRequest = catchAsync(async(req,res,next)=>{
+    const user =req.user;
+    const {id} =req.params;
+    const {account} = req.body;
+    if (!account) {
+        return  next(new AppError('Enter valid account public key', 400));
+    }
+    const foundRegistration = await Registration.findOne({createdBy : user._id, _id : id});
+    if (!foundRegistration) return next(new AppError('No registration was found to make the withdrawl', 404));
+    if (foundRegistration.isRequested) return next (new AppError("You've already requested the payment", 405));
+    const newWithdrawRequest = new WithdrawRequest({
+        createdBy : user._id,
+        registration : foundRegistration._id,
+        accountId : account,
+    });
+    const savedWithdrawl = await newWithdrawRequest.save();
+    foundRegistration.isRequested = true;
+    const savedFoundRegistration = await foundRegistration.save();
+
+    res.json({
+        withdraw : savedWithdrawl,
+        registration : savedFoundRegistration
+    });
+})
+
+exports.updateWithdrawState = catchAsync(async(req,res,next)=>{
+    const {id} = req.params;
+    const {state} = req.body;
+    const foundWithdrawl = await WithdrawRequest.findById(id);
+    if (!foundWithdrawl) return next(new AppError('No Withdrawl was found with the id'));
+    foundWithdrawl.state = state;
+    const updatedWithdrawl = await foundWithdrawl.save();
+    res.json(updatedWithdrawl);
 })

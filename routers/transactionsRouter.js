@@ -17,4 +17,6 @@ router.route('/add-wallet')
 router.route('/create')
 .post(protect, transactionsController.createCustomTransactionToWallet);
 
+router.route('/distribute').post(protect,restrictTo('admin'), transactionsController.distributeMoneyHandler);
+
 module.exports = router;

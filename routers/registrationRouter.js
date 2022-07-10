@@ -12,3 +12,9 @@ module.exports = router;
 
 router.route('/score/:id').get(protect, registrationController.getPlayerRank);
 router.route('/score/:id/end').get(protect, registrationController.contestEndStats);
+
+router.route('/withdraw/:id').post(protect,registrationController.createWithdrawRequest)
+.put(protect,restrictTo('admin'), registrationController.updateWithdrawState);
+
+
+// router.route('/withdraw-request').get(protect,)

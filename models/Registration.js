@@ -35,7 +35,7 @@ const registrationSchema = new Schema({
         type : Number,
         default : 0
     },
-    isPaid : {
+    isRequested : {
         type : Boolean,
         default : false,
     },
