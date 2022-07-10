@@ -176,3 +176,10 @@ exports.updateWithdrawState = catchAsync(async(req,res,next)=>{
     const updatedWithdrawl = await foundWithdrawl.save();
     res.json(updatedWithdrawl);
 })
+
+
+exports.fetchAllWithdrawRequests = catchAsync(async(req,res,next)=>{
+  
+    const allWithdrawls = await WithdrawRequest.find({});
+    res.json({withdrawRequests : allWithdrawls})
+})

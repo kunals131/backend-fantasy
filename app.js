@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser')
 const cors = require('cors');
-// const morgan = require('morgan');
+const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
@@ -48,9 +48,9 @@ console.log(process.env.NODE_ENV);
 app.use(helmet());
 app.use(bodyParser.json());
 
-// if (process.env.NODE_ENV === 'development') {
-//   app.use(morgan('dev'));
-// }
+
+  app.use(morgan('dev'));
+
 
 // $ CORS
 app.use(cors());

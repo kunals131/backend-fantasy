@@ -6,7 +6,7 @@ const registrationSchema = new Schema({
         required : true
     },
     tournamentId : {
-        type : Schema.Types.ObjectId,
+        type : String,
         required : true,
         ref : 'Tournament'
     },
