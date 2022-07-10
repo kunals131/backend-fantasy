@@ -9,7 +9,7 @@ const {shopAddress} = require('../utils/walletAddresses');
 const { clusterApiUrl, Connection,Transaction,PublicKey, SystemProgram, LAMPORTS_PER_SOL } = require("@solana/web3.js")
 const { WalletAdapterNetwork } =  require("@solana/wallet-adapter-base");
 const BigNumber = require('bignumber.js');
-
+const WithdrawRequest  = require('../models/WithdrawRequest');
 
 
 exports.registerTournamentHandler = catchAsync(async (req, res, next) => {
@@ -223,6 +223,10 @@ exports.distributeMoneyHandler = catchAsync(async(req,res,next)=>{
     if (!account) {
       return next(new AppError('Account provided is invalid', 400));
     }
+
+    const pendingWithdrawls = await WithdrawRequest.find({state : 'pending'}).populate('registration');
+    if (pendingWithdrawls.length===0) return next(new AppError('No pending withdraw was found'));
+
     const buyerPublicKey = new PublicKey(account)
 
 
@@ -239,11 +243,11 @@ exports.distributeMoneyHandler = catchAsync(async(req,res,next)=>{
       feePayer: buyerPublicKey,
     })
 
-    const {allTransactions} = req.body;
-    for(tran of allTransactions) {
+   
+    for(withdraw of pendingWithdrawls) {
     // Create the instruction to send SOL from the buyer to the shop
-    const amount = new BigNumber(tran.amount);
-    const toKey = new PublicKey(tran.transferKey);
+    const amount = new BigNumber(withdraw.registration.prizeWon);
+    const toKey = new PublicKey(withdraw.accountId);
 
     const transferInstruction = SystemProgram.transfer({
         fromPubkey: buyerPublicKey,
@@ -268,7 +272,7 @@ exports.distributeMoneyHandler = catchAsync(async(req,res,next)=>{
       // We will need the buyer to sign this transaction after it's returned to them
       requireAllSignatures: false
     })
-    const base64 = serializedTransaction.toString('base64')
+    const base64 = serializedTransaction.toString('base64');
 
     // Insert into database: reference, amount
 

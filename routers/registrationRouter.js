@@ -25,6 +25,10 @@ router
   .post(protect, transactionController.registerTournamentHandler)
   .get(protect, registrationController.getOneRegistration);
 
+  router.route('/withdraw/complete-requests').post(protect,restrictTo('admin'), registrationController.updatePendingsToCompleted);
+  
+
+
 router
   .route("/withdraw/:id")
   .post(protect, registrationController.createWithdrawRequest)

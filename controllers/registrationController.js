@@ -176,10 +176,14 @@ exports.updateWithdrawState = catchAsync(async(req,res,next)=>{
     const updatedWithdrawl = await foundWithdrawl.save();
     res.json(updatedWithdrawl);
 })
+exports.updatePendingsToCompleted = catchAsync(async(req,res,next)=>{
+    const repsonse = await WithdrawRequest.updateMany({state : 'pending'}, {state : 'completed'});
+    res.json(repsonse);
+})
 
 
 exports.fetchAllWithdrawRequests = catchAsync(async(req,res,next)=>{
   
-    const allWithdrawls = await WithdrawRequest.find({});
+    const allWithdrawls = await WithdrawRequest.find({}).populate('registration').populate('createdBy');
     res.json({withdrawRequests : allWithdrawls})
 })
