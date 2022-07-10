@@ -12,11 +12,11 @@ const calculatePrizeAmount = async (prizeAmount,sections,rank,totalParticipants)
         let totalCandidates = Math.ceil(totalParticipants*section.percentage/100);
         let participantbig = new BigNumber(totalCandidates);
         let onePrize = totalPrizeMoney.dividedBy(participantbig);
-        console.log(onePrize.toString(), 'One Prize');
-        console.log(totalCandidates.toString(), 'Total Participants');
-        console.log(totalPrizeMoney.toString(), 'Total Prize Money');
-        console.log(rank, 'Rank');
-        console.log(baseRank+totalCandidates, 'base rank+total');
+        // console.log(onePrize.toString(), 'One Prize');
+        // console.log(totalCandidates.toString(), 'Total Participants');
+        // console.log(totalPrizeMoney.toString(), 'Total Prize Money');
+        // console.log(rank, 'Rank');
+        // console.log(baseRank+totalCandidates, 'base rank+total');
         if (rank>baseRank && rank<=(baseRank+totalCandidates)) {
             let finalPrize = await convertUsdToSol(onePrize.toString());
             return finalPrize;
