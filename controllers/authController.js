@@ -34,35 +34,19 @@ exports.signup = catchAsync(async (req, res, next) => {
     dob: req.body.dob,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
-    deleted: false
+    deleted: false,
+    verfied : true
   });
 
   // Generate Account Activation Link
-  const activationToken = user.createAccountActivationLink();
+
 
   user.save({ validateBeforeSave: false });
 
-  // 4 Send it to Users Email
-  const activationURL = `${process.env.BASE_URL}auth/confirmMail/${activationToken}`;
-  // let activationURL = `${req.headers.origin}/confirmMail/${activationToken}`;
 
-  console.log(`req.get('host')`, req.get("hostname"));
-  console.log(`req.host`, req.host);
-  console.log(`req.protocol`, req.protocol);
-
-  const message = `GO to this link to activate your App Account : ${activationURL} .`;
-
-  sendMail({
-    email: user.email,
-    message,
-    subject: "Your Account Activation Link for Daily Fantasy!",
-    user,
-    template: "signupEmail.ejs",
-    url: activationURL,
-  });
   res.status(200).json({
     status: "Success",
-    message: `Email verification link successfully sent to your email.`,
+    message: `Your account has been created successfully!`,
     user,
   });
   // createsendToken(user, 201, res);
@@ -94,15 +78,7 @@ exports.login = catchAsync(async (req, res, next) => {
         401
       )
     );
-  // if (user.verified === false)
-  //   return next(
-  //     new AppError(
-  //       `Please Activate your email by the Link sent to your email ${user.email}.`,
-  //       401
-  //     )
-  //   )
-
-  // if eveything is ok
+ 
   createsendToken(user, 200, res);
 });
 
