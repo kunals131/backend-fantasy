@@ -24,6 +24,11 @@ const tournamentSchema = new mongoose.Schema({
     type: Array,
     default: [],
   },
+  type : {
+    type : String,
+    enum : ["apex", "cod"],
+    default : "apex"
+  },
   prize_amount: {
     type: Number,
     required: [true, "Please provide prize amount"],

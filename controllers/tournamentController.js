@@ -40,7 +40,8 @@ exports.createTournament = catchAsync(async (req, res, next) => {
     prize_amount: req.body.prize_amount,
     sections: req.body.sections,
     created_by: req.user.id,
-    isDynamic : req.body.isDynamic
+    isDynamic : req.body.isDynamic,
+    type : req.body.type
   });
 
   if (!newTournament)
