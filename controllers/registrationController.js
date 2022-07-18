@@ -44,7 +44,7 @@ exports.getPlayerRank = catchAsync(async(req,res,next)=>{
         scores[streamer.name] = {
             kills : result.data[0].gameData[0]['value'] || 0,
             damage : (result.data[0].gameData[1]['value']+result.data[0].gameData[2]['value']) || 0,
-            damagePlus : result.data[0].BRScore || 0,
+            damagePlus : result.data[0].BRScoreChange || 0,
             wins : 0
         }
         }
@@ -113,7 +113,7 @@ exports.contestEndStats = catchAsync(async(req,res,next)=>{
         scores[streamer.name] = {
             kills : result.data[0].gameData[0]['value'] || 0,
             damage : (result.data[0].gameData[1]['value']+result.data[0].gameData[2]['value']) || 0,
-            damagePlus : result.data[0].BRScore || 0,
+            damagePlus : result.data[0].BRScoreChange || 0,
             wins : 0
         }
         }
