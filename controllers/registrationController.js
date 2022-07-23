@@ -37,19 +37,19 @@ exports.getPlayerRank = catchAsync(async(req,res,next)=>{
         })
     }
 
-    const scores = {};
-    for(streamer of foundRegistration.tournamentId.streamers)  {
-        if (foundRegistration.tournamentId.type==='apex') {
-        const result = await axios.get(`https://api.mozambiquehe.re/games?auth=d165c76633071b1013086bb692ccc926&uid=${streamer.name}`);
-        scores[streamer.name] = {
-            kills : result.data[0].gameData[0]['value'] || 0,
-            damage : (result.data[0].gameData[1]['value']+result.data[0].gameData[2]['value']) || 0,
-            damagePlus : result.data[0].BRScoreChange || 0,
-            wins : 0
-        }
-        }
-    }
-    console.log(scores);
+    // const scores = {};
+    // for(streamer of foundRegistration.tournamentId.streamers)  {
+    //     if (foundRegistration.tournamentId.type==='apex') {
+    //     const result = await axios.get(`https://api.mozambiquehe.re/games?auth=d165c76633071b1013086bb692ccc926&uid=${streamer.name}`);
+    //     scores[streamer.name] = {
+    //         kills : result.data[0].gameData[0]['value'] || 0,
+    //         damage : (result.data[0].gameData[1]['value']+result.data[0].gameData[2]['value']) || 0,
+    //         damagePlus : result.data[0].BRScoreChange || 0,
+    //         wins : 0
+    //     }
+    //     }
+    // }
+    // console.log(scores);
     const Allregistrations = await Registration.find({tournamentId : id});
 
     for(reg of Allregistrations) {
@@ -58,13 +58,11 @@ exports.getPlayerRank = catchAsync(async(req,res,next)=>{
         let totalDamage = 0;
         let totalScore =0;
         for(player of reg.team) {
-            // console.log(player?.name);
-            if (player?.name) {
-            totalKills+=scores[player.name]?.kills;
-            totalWins+=scores[player.name]?.wins;
-            totalDamage+=scores[player.name]?.damage;
-            totalDamage+=(scores[player.name]?.damagePlus || 0);
-            }
+           const streamer = foundRegistration.tournamentId.streamers.filter(s=>s.id===player.id)[0];
+           console.log(streamer);
+           totalKills += streamer.kills || 0;
+           totalDamage+= streamer.damage || 0;
+           totalWins += streamer.wins || 0;
         }
     
         totalScore = totalKills*10 + totalWins*100 + totalDamage*0.1;
@@ -74,6 +72,8 @@ exports.getPlayerRank = catchAsync(async(req,res,next)=>{
         reg.score = totalScore;
         const result = await reg.save();
     }
+    console.log(Allregistrations);
+    
     
 
     const sortedRegistrations = await Registration.find({tournamentId : id}).sort({score : -1});
@@ -97,7 +97,6 @@ exports.contestEndStats = catchAsync(async(req,res,next)=>{
     const user = req.user;
     const {id} = req.params;
     const foundRegistration = await Registration.findOne({tournamentId : id, createdBy : user._id}).populate('tournamentId');
-
     if (!foundRegistration) return new next(new AppError(`Registration with ${id} was not found!`, 404));
     if (foundRegistration.tournamentId.status==='open') {
         return next(new AppError('Contest has not started yet'));
@@ -106,19 +105,19 @@ exports.contestEndStats = catchAsync(async(req,res,next)=>{
         return next(new AppError('Contest is still going on!',405));
     }
 
-    const scores = {};
-    for(streamer of foundRegistration.tournamentId.streamers)  {
-        if (foundRegistration.tournamentId.type==='apex') {
-        const result = await axios.get(`https://api.mozambiquehe.re/games?auth=d165c76633071b1013086bb692ccc926&uid=${streamer.name}`);
-        scores[streamer.name] = {
-            kills : result.data[0].gameData[0]['value'] || 0,
-            damage : (result.data[0].gameData[1]['value']+result.data[0].gameData[2]['value']) || 0,
-            damagePlus : result.data[0].BRScoreChange || 0,
-            wins : 0
-        }
-        }
-    }
-    console.log(scores);
+    // const scores = {};
+    // for(streamer of foundRegistration.tournamentId.streamers)  {
+    //     if (foundRegistration.tournamentId.type==='apex') {
+    //     const result = await axios.get(`https://api.mozambiquehe.re/games?auth=d165c76633071b1013086bb692ccc926&uid=${streamer.name}`);
+    //     scores[streamer.name] = {
+    //         kills : result.data[0].gameData[0]['value'] || 0,
+    //         damage : (result.data[0].gameData[1]['value']+result.data[0].gameData[2]['value']) || 0,
+    //         damagePlus : result.data[0].BRScoreChange || 0,
+    //         wins : 0
+    //     }
+    //     }
+    // }
+    // console.log(scores);
     const Allregistrations = await Registration.find({tournamentId : id});
 
     for(reg of Allregistrations) {
@@ -127,16 +126,15 @@ exports.contestEndStats = catchAsync(async(req,res,next)=>{
         let totalDamage = 0;
         let totalScore =0;
         for(player of reg.team) {
-            // console.log(player?.name);
-            if (player?.name) {
-            totalKills+=scores[player.name]?.kills;
-            totalWins+=scores[player.name]?.wins;
-            totalDamage+=scores[player.name]?.damage;
-            totalDamage+=(scores[player.name]?.damagePlus || 0);
-            }
+           const streamer = foundRegistration.tournamentId.streamers.filter(s=>s.id===player.id)[0];
+           console.log(streamer);
+           totalKills += streamer.kills ;
+           totalDamage+= streamer.damage ;
+           totalWins += streamer.wins ;
+           console.log(totalKills)
         }
     
-        totalScore = totalKills*10 + totalWins*100 + totalDamage*0.1;
+        totalScore += totalKills*10 + totalWins*100 + totalDamage*0.1;
         reg.kills = totalKills;
         reg.damage = totalDamage;
         reg.wins = totalWins;
@@ -147,6 +145,7 @@ exports.contestEndStats = catchAsync(async(req,res,next)=>{
 
     const sortedRegistrations = await Registration.find({tournamentId : id}).sort({score : -1});
     const rank = sortedRegistrations.map(r=>r.id).indexOf(foundRegistration.id);
+    console.log(sortedRegistrations);
 
     //prize calculation : 
     //constact prizze for now
@@ -154,6 +153,7 @@ exports.contestEndStats = catchAsync(async(req,res,next)=>{
     console.log(prizeWon);
     foundRegistration.prizeWon = prizeWon;
     const updatedFoundreg = await foundRegistration.save();
+    console.log(updatedFoundreg);
       
     return res.json({
         rank : rank+1,

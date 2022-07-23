@@ -60,16 +60,18 @@ exports.createTournament = catchAsync(async (req, res, next) => {
 exports.updateTournament = catchAsync(async (req, res, next) => {
 
   // 2) Filtered out unwanted fields names that are not allowed to be updated
-  const filteredBody = filterObj(req.body, 'status', 'active');
+  // const filteredBody = filterObj(req.body, 'status', 'active');
+  console.log(req.body);
 
   const updatedTournament = await Tournament.findByIdAndUpdate(
     req.params.id,
-    filteredBody,
+    req.body,
     {
       new: true,
       runValidators: true,
     }
   );
+  console.log(updatedTournament)
 
   res.status(200).json({
     status: 'success',
