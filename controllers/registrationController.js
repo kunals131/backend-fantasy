@@ -60,10 +60,11 @@ exports.getPlayerRank = catchAsync(async(req,res,next)=>{
         for(player of reg.team) {
            const streamer = foundRegistration.tournamentId.streamers.filter(s=>s.id===player.id)[0];
            console.log(streamer);
-           totalKills += streamer.kills || 0;
-           totalDamage+= streamer.damage || 0;
-           totalWins += streamer.wins || 0;
+           totalKills += parseInt(streamer.kills) || 0;
+           totalDamage+= parseInt(streamer.damage) || 0;
+           totalWins += parseInt(streamer.wins) || 0;
         }
+        console.log([totalKills,totalDamage,totalWins]);
     
         totalScore = totalKills*10 + totalWins*100 + totalDamage*0.1;
         reg.kills = totalKills;
@@ -72,7 +73,7 @@ exports.getPlayerRank = catchAsync(async(req,res,next)=>{
         reg.score = totalScore;
         const result = await reg.save();
     }
-    console.log(Allregistrations);
+    // console.log(Allregistrations);
     
     
 
@@ -128,9 +129,9 @@ exports.contestEndStats = catchAsync(async(req,res,next)=>{
         for(player of reg.team) {
            const streamer = foundRegistration.tournamentId.streamers.filter(s=>s.id===player.id)[0];
            console.log(streamer);
-           totalKills += streamer.kills ;
-           totalDamage+= streamer.damage ;
-           totalWins += streamer.wins ;
+           totalKills += parseInt(streamer.kills) || 0;
+           totalDamage+= parseInt(streamer.damage) || 0;
+           totalWins += parseInt(streamer.wins) || 0;
            console.log(totalKills)
         }
     
